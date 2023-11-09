@@ -1,3 +1,4 @@
+import { formatCardNumberWithDashes } from "@/utils/format/format-card-number"
 
 /**
  * Represents the QwQuery class for working with DOM elements.
@@ -23,6 +24,7 @@ class QwQuery {
 
     }
 
+    /* FIND */
 
     /**
      * Find the first element that matches the specified selector within the selected element.
@@ -38,6 +40,8 @@ class QwQuery {
             throw new Error(`Element ${selector} not found`)
         }
     }
+
+    /* INSERT */
 
     /**
      * Append a new element as a child of the selected element.
@@ -71,8 +75,10 @@ class QwQuery {
 
     /**
      * Get or set the inner HTML of the selected element.
-     * @param {string} [htmlContent] - Optional HTML content to set. If not provided, the current inner HTML will be returned
-     * @returns {QwQuery|string} The current QwQuery instance for chaining when setting HTML content, or the current inner HTML when getting.
+     * @param {string} [htmlContent] - Optional HTML content to set. 
+     * If not provided, the current inner HTML will be returned
+     * @returns {QwQuery|string} The current QwQuery instance for chaining 
+     * when setting HTML content, or the current inner HTML when getting.
      */
     html(htmlContent) {
         if (typeof htmlContent === 'undefined') {
@@ -82,6 +88,103 @@ class QwQuery {
             return this
         }
     }
+
+    /**
+	 * Get or set the text content of the selected element.
+	 * @param {string} [textContent] - Optional text content to set. If not provided, the current text content will be returned.
+	 * @returns {QwQuery|string} The current QwQuery instance for chaining when setting text content, or the current text content when getting.
+	 */
+	text(textContent) {
+		if (typeof textContent === 'undefined') {
+			return this.element.textContent
+		} else {
+			this.element.textContent = textContent
+			return this
+		}
+	}
+
+    /* EVENTS */
+
+    /**
+     * Attach a click event listener to the selected element.
+     * @param {function(Event): void} callBack - The event listener 
+     * function to execute when the selected element is clicked. 
+     * The function will receive the event object as its argument.
+     * @returns {QwQuery} The current QwQuery instance for chaining.
+     */
+    click(callBack) {
+        this.element.addEventListener('click', callBack)
+        return this
+    }
+
+    /* FORM */
+
+    /**
+	 * Set attributes and event listeners for an input element.
+	 * @param {object} options - An object containing input options.
+	 * @param {function(Event): void} [options.onInput] - The event listener for the input's input event.
+	 * @param {object} [options.rest] - Optional attributes to set on the input element.
+	 * @returns {QwQuery} The current QwQuery instance for chaining.
+	 */
+	input({ onInput, ...rest }) {
+		if (this.element.tagName.toLowerCase() !== 'input')
+			throw new Error('Element must be an input')
+
+		for (const [key, value] of Object.entries(rest)) {
+			this.element.setAttribute(key, value)
+		}
+
+		if (onInput) {
+			this.element.addEventListener('input', onInput)
+		}
+
+		return this
+	}
+
+    /**
+	 * Set attributes and event listeners for a number input element.
+	 * @param {number} [limit] - The maximum length of input value.
+	 * @returns {QwQuery} The current QwQuery instance for chaining.
+	 */
+	numberInput(limit) {
+		if (
+			this.element.tagName.toLowerCase() !== 'input' ||
+			this.element.type !== 'number'
+		)
+			throw new Error('Element must be an input with type "number"')
+
+		this.element.addEventListener('input', event => {
+			let value = event.target.value.replace(/[^0-9]/g, '')
+			if (limit) value = value.substring(0, limit)
+			event.target.value = value
+		})
+
+		return this
+	}
+
+    /**
+	 * Set attributes and event listeners for a credit card input element.
+	 * @returns {QwQuery} The current QwQuery instance for chaining.
+	 */
+	creditCardInput() {
+		const limit = 16
+
+		if (
+			this.element.tagName.toLowerCase() !== 'input' ||
+			this.element.type !== 'text'
+		)
+			throw new Error('Element must be an input with type "text"')
+
+		this.element.addEventListener('input', event => {
+			let value = event.target.value.replace(/[^0-9]/g, '')
+			if (limit) value = value.substring(0, limit)
+			event.target.value = formatCardNumberWithDashes(value)
+		})
+
+		return this
+	}
+
+    /* STYLES */
 
     /**
      * Set the CSS style of the selected element.
@@ -97,6 +200,59 @@ class QwQuery {
         this.element.style[property] = value
         return this
     }
+
+    /**
+	 * Adds a class or a list of classes to the current element.
+	 * @param {string | string[]} classNames - A single class name or an array of class names to add to the element.
+	 * @returns {QwQuery} The current QwQuery instance for chaining.
+	 */
+    addClass(classNames) {
+        if (Array.isArray(classNames)) {
+            for (const className of classNames) {
+                this.element.classList.add(className)
+            }
+        } else {
+            this.element.classList.add(classNames)
+        }
+
+        return this
+    }
+
+    /**
+	 * Removes a class or a list of classes from the current element.
+	 * @param {string | string[]} classNames - A single class name or an array of class names to remove from the element.
+	 * @returns {QwQuery} The current QwQuery instance for chaining.
+	 */
+	removeClass(classNames) {
+		if (Array.isArray(classNames)) {
+			for (const className of classNames) {
+				this.element.classList.remove(className)
+			}
+		} else {
+			this.element.classList.remove(classNames)
+		}
+
+		return this
+	}
+
+    /**
+	 * Set or get the value of an attribute on the selected element.
+	 * @param {string} attributeName - The name of the attribute to set or get.
+	 * @param {string} [value] - The value to set for the attribute. If not provided, the current value of the attribute will be returned.
+	 * @returns {QwQuery|string} The current QwQuery instance for chaining (if setting) or the attribute value (if getting).
+	 */
+	attr(attributeName, value) {
+		if (typeof attributeName !== 'string') {
+			throw new Error('Attribute name must be a string')
+		}
+
+		if (typeof value === 'undefined') {
+			return this.element.getAttribute(attributeName)
+		} else {
+			this.element.setAttribute(attributeName, value)
+			return this
+		}
+	}
 }
 
 
