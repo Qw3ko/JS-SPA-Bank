@@ -6,13 +6,37 @@ import { Logo } from './logo/logo.component';
 import { LogoutButton } from './logout-button/logout-button.component';
 import { Search } from './search/search.component';
 import { UserItem } from '@/components/ui/user-item/user-item.component';
+import { Store } from '@/core/store/store';
+import { $Q } from '@/core/qwquery/qwquery.lib';
 
 export class Header extends ChildComponent {
     
     constructor({router}) {
         super()
 
+        this.store = Store.getInstance()
+        this.store.addObserver(this)
+
         this.router = router
+
+        this.userItem = new UserItem({
+            avatarPath: '/',
+            name: 'Name'
+        })
+    }
+
+    update() {
+        this.user = this.store.state.user
+
+        const authSideElement = $Q(this.element).find('#auth-side')
+
+        if (this.user) {
+            authSideElement.show()
+            this.userItem.update(this.user)
+            this.router.navigate('/')
+        } else {
+            authSideElement.hide()
+        }
     }
 
     render() {
@@ -22,11 +46,11 @@ export class Header extends ChildComponent {
                 router: this.router
             }), 
             Search,
-            new UserItem({
-                avatarPath: 'https://sun9-9.userapi.com/impg/iUV_cuz2Nvihu_F-18mfU6Uj3uugjWmJHmIUbA/IsYB3bk671g.jpg?size=256x256&quality=96&sign=2ba2dad3745e861b894c5840eb5d1aec&type=album',
-                name: 'Name'
-            })
+            this.userItem
         ], styles)
+
+        this.update()
+
         return this.element
     }
 }
