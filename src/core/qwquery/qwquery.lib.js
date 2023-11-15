@@ -41,6 +41,16 @@ class QwQuery {
         }
     }
 
+	/**
+	 * Find all elements that match the specified selector within the selected element.
+	 * @param {string} selector - A CSS selector string to search for within the selected element.
+	 * @returns {QwQuery[]} An array of new QwQuery instances for the found elements.
+	 */
+	findAll(selector) {
+		const elements = this.element.querySelectorAll(selector)
+		return Array.from(elements).map(element => new QwQuery(element))
+	}
+
     /* INSERT */
 
     /**
@@ -106,6 +116,23 @@ class QwQuery {
     /* EVENTS */
 
     /**
+	 * Add an event listener to the selected element for the specified event type.
+	 * @param {string} eventType - The type of event to listen for (e.g., 'click', 'input', etc.).
+	 * @param {function(Event): void} callback - The event listener function to execute when the event is triggered. The function will receive the event object as its argument.
+	 * @returns {QwQuery} The current QwQuery instance for chaining.
+	 */
+	on(eventType, callback) {
+		if (typeof eventType !== 'string' || typeof callback !== 'function') {
+			throw new Error(
+				'eventType must be a string and callback must be a function'
+			)
+		}
+
+		this.element.addEventListener(eventType, callback)
+		return this
+	}
+
+    /**
      * Attach a click event listener to the selected element.
      * @param {function(Event): void} callBack - The event listener 
      * function to execute when the selected element is clicked. 
@@ -118,6 +145,20 @@ class QwQuery {
     }
 
     /* FORM */
+
+	/**
+	 * Gets or sets the value of an input element.
+	 * @param {string} [newValue] - The new value to set for the input element. If not provided, the method returns the current value.
+	 * @return {string|QwQuery} - If newValue is provided, returns the QwQuery instance. Otherwise, returns the current value of the input element.
+	 */
+	value(newValue) {
+		if (typeof newValue === 'undefined') {
+			return this.element.value
+		} else {
+			this.element.value = newValue
+			return this
+		}
+	}
 
     /**
 	 * Set an event listener for the submit event of a form element.
@@ -205,6 +246,24 @@ class QwQuery {
     /* STYLES */
 
     /**
+	 * Shows the selected element by removing the 'display' style property.
+	 * @returns {QwQuery} The current QwQuery instance for chaining.
+	 */
+    show() {
+        this.element.style.removeProperty('display')
+        return this
+    }
+
+    /**
+	 * Hides the selected element by setting its display style to 'none'.
+	 * @returns {QwQuery} The current QWQuery instance for chaining.
+	 */
+	hide() {
+		this.element.style.display = 'none'
+		return this
+	}
+
+    /**
      * Set the CSS style of the selected element.
      * @param {string} property - The CSS property to set.
      * @param {string} value - The value to set for the CSS property.
@@ -270,6 +329,20 @@ class QwQuery {
 			this.element.setAttribute(attributeName, value)
 			return this
 		}
+	}
+
+	/**
+	 * Removes an attribute from the current element.
+	 * @param {string} attrName - The name of the attribute to remove.
+	 * @return {QwQuery} - Returns the QwQuery instance.
+	 */
+	removeAttr(attrName) {
+		if (typeof attrName !== 'string') {
+			throw new Error('attrName must be a string')
+		}
+
+		this.element.removeAttribute(attrName)
+		return this
 	}
 }
 
