@@ -30,8 +30,6 @@ export async function QwekoQuery({
 		data = null
 	const url = `${SERVER_URL}/api${path}`
 
-	/* ACCESS_TOKEN from LOCAL_STORAGE */
-
 	const accessToken = new StorageService().getItem(ACCESS_TOKEN_KEY)
 
 	const requestOptions = {
@@ -49,12 +47,13 @@ export async function QwekoQuery({
 	if (body) {
 		requestOptions.body = JSON.stringify(body)
 	}
-
+	
 	try {
 		const response = await fetch(url, requestOptions)
 
 		if (response.ok) {
 			data = await response.json()
+			
 			if (onSuccess) {
 				onSuccess(data)
 			}
