@@ -6,6 +6,8 @@ import { $Q } from '@/core/qwquery/qwquery.lib'
 import { UserService } from '@/api/user.service'
 import { UserItem } from '@/components/ui/user-item/user-item.component'
 import { debounce } from '@/utils/debounce'
+import { TRANSFER_FIELD_SELECTOR } from '@/components/screens/Home/contacts/transfer-field/transfer-field.component'
+import { formatCardNumberWithDashes } from '@/utils/format/format-card-number'
 
 export class Search extends ChildComponent {
 	constructor() {
@@ -28,9 +30,14 @@ export class Search extends ChildComponent {
 
 			users.forEach((user, index) => {
 				const userItem = new UserItem(user, true, () => {
-					searchResultElement.html('')
+					$Q(TRANSFER_FIELD_SELECTOR).value(
+					formatCardNumberWithDashes(user.card.number)
+				)
+				
+				searchResultElement.html('')
 				}).render()
 
+				
 				$Q(userItem)
 					.addClass(styles.item)
 					.css('transition-delay', `${index * 0.1}s`)
