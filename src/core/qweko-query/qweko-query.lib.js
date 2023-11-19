@@ -70,7 +70,7 @@ export async function QwekoQuery({
 	} catch (errorData) {
 		const errorMessage = extractErrorMessage(errorData)
 
-		if (errorMessage) {
+		if (onError) {
 			onError(errorMessage)
 		}
 	} finally {
