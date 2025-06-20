@@ -9,7 +9,6 @@ lerna-debug.log*
 
 node_modules
 .fttemplates
-dist
 dist-ssr
 *.local
 
